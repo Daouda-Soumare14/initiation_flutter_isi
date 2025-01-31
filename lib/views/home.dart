@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:initiation_flutter/common/constants_color.dart';
 import 'package:initiation_flutter/common/size_config.dart';
 import 'package:initiation_flutter/views/info_user.dart';
+import 'package:get/get.dart';
+import 'package:initiation_flutter/controllers/user_controller.dart';
 
 class Home extends StatefulWidget {
   // on creer une route pour naviger facilement
@@ -17,8 +19,12 @@ class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
 
   final nameController = TextEditingController();
-  final prenomcontroller = TextEditingController();
+  final prenomController = TextEditingController();
   final emailController = TextEditingController();
+
+  // recuperation du controller avec getX
+  // Instancie le contrôleur et le rend disponible dans tout l'arbre de widgets.
+  final userController = Get.put(UserController());
 
   // Appel dispose de l'objet TextEditingController lorsqu'on termine
   // de l'utitiser. cela garantit qu'on supprime toutes les ressources
@@ -26,7 +32,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     nameController.dispose();
-    prenomcontroller.dispose();
+    prenomController.dispose();
     emailController.dispose();
     super.dispose();
   }
@@ -49,8 +55,10 @@ class _HomeState extends State<Home> {
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 50,),
-              
+              SizedBox(
+                height: 50,
+              ),
+
               TextFormField(
                 controller: emailController,
                 validator: (value) {
@@ -95,7 +103,7 @@ class _HomeState extends State<Home> {
               ),
 
               TextFormField(
-                controller: prenomcontroller,
+                controller: prenomController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Veuillez remplir le champ prenom";
@@ -108,22 +116,28 @@ class _HomeState extends State<Home> {
                     hintText: "Entrer le prenom"),
               ),
 
-              SizedBox(height: 20,),
-              
+              SizedBox(
+                height: 20,
+              ),
+
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Affichage des donnees")));
+                    userController.updateUserInfo(
+                        newName: nameController.text,
+                        newPrenom: prenomController.text,
+                        NewEmail: emailController.text);
 
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => InfoUser(
-                                  nom: nameController.text,
-                                  prenom: prenomcontroller.text,
-                                  email: emailController.text,
-                                )));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        "Donnees sauvegarder avec succes",
+                        style: TextStyle(color: kWhiteColor),
+                      ),
+                      backgroundColor: kPrimaryColor,
+                    ));
+
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => InfoUser()));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text(
